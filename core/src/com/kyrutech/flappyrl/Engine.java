@@ -44,7 +44,7 @@ public class Engine {
             checkCollision();
         }
 
-        if(flappy.getY() > 10) {
+        if(flappy.getY() > 10 && flappy.getY() < height - 10) {
             flappy.act(GRAVITY);
         } else {
             flappy.setAlive(false);

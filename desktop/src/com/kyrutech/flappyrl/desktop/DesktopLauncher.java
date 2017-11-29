@@ -17,19 +17,19 @@ public class DesktopLauncher {
 
 	public static QLearning.QLConfiguration FLAPPY_QL =
 			new QLearning.QLConfiguration(
-					123,    //Random seed
-					1000,    //Max step By epoch
-					800000, //Max step
-					100000, //Max size of experience replay
-					32,     //size of batches
-					1000,    //target update (hard)
-					1000,     //num step noop warmup
-					0.1,   //reward scaling
-					0.99,   //gamma
-					10.0,    //td-error clipping
-					0.1f,   //min epsilon
-					10000,   //num step for eps greedy anneal
-					true    //double DQN
+					123,      //Random seed
+					10000,    //Max step By epoch
+					8000000,  //Max step
+					1000000,  //Max size of experience replay
+					32,       //size of batches
+					10000,    //target update (hard)
+					500,      //num step noop warmup
+					0.1,      //reward scaling
+					0.99,     //gamma
+					100.0,    //td-error clipping
+					0.1f,     //min epsilon
+					100000,   //num step for eps greedy anneal
+					true      //double-dqn
 			);
 
 	public static HistoryProcessor.Configuration FLAPPY_HP =

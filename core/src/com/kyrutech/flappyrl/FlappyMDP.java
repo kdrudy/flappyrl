@@ -15,7 +15,7 @@ public class FlappyMDP implements MDP<FlappyMDP.Screen, Integer, DiscreteSpace> 
 
     final protected boolean render;
 
-    protected double scaleFactor = 1;
+    protected double scaleFactor = 100;
 
     public FlappyMDP() {
         this(false, new FlappyBirdRL());
@@ -52,7 +52,7 @@ public class FlappyMDP implements MDP<FlappyMDP.Screen, Integer, DiscreteSpace> 
 
     @Override
     public StepReply<FlappyMDP.Screen> step(Integer action) {
-        double r = game.getScore() * scaleFactor;
+        double r = game.getReward() * scaleFactor;
         switch(action) {
             case 0:
                 game.handleInput(FlappyBirdRL.Inputs.NOTHING);

@@ -134,7 +134,7 @@ public class FlappyBirdRL extends ApplicationAdapter {
         NOTHING, FLAP, RESTART
     }
 
-    public double getScore() {
+    public double getReward() {
         return engine.getScore() + time;
     }
 
