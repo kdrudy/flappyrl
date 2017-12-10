@@ -46,8 +46,8 @@ public class DesktopLauncher {
 
 	public static DQNFactoryStdConv.Configuration FLAPPY_NET =
 			new DQNFactoryStdConv.Configuration(
-					0.00025, //learning rate
-					0.000,   //l2 regularization
+					0.001, //learning rate
+					0.001,   //l2 regularization
 					null, null
 			);
 

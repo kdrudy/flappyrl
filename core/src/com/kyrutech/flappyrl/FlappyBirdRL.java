@@ -31,6 +31,8 @@ public class FlappyBirdRL extends ApplicationAdapter {
 
     double time = 0;
 
+    Pixmap pixmap, pixmap2;
+
     @Override
     public void create() {
         batch = new SpriteBatch();
@@ -51,7 +53,8 @@ public class FlappyBirdRL extends ApplicationAdapter {
 
         Gdx.input.setInputProcessor(input);
 
-
+        pixmap = new Pixmap(Gdx.graphics.getBackBufferWidth(), Gdx.graphics.getBackBufferHeight(), Pixmap.Format.RGBA8888);
+        pixmap2 = new Pixmap(160, 120, Pixmap.Format.RGBA8888);
     }
 
     public void startGame() {
@@ -120,10 +123,10 @@ public class FlappyBirdRL extends ApplicationAdapter {
     }
 
     public byte[] getScreenPixels() {
-        byte[] pixels = ScreenUtils.getFrameBufferPixels(0, 0, Gdx.graphics.getBackBufferWidth(), Gdx.graphics.getBackBufferHeight(), true);
-        Pixmap pixmap = new Pixmap(Gdx.graphics.getBackBufferWidth(), Gdx.graphics.getBackBufferHeight(), Pixmap.Format.RGBA8888);
-        BufferUtils.copy(pixels, 0, pixmap.getPixels(), pixels.length);
-        Pixmap pixmap2 = new Pixmap(160, 120, Pixmap.Format.RGBA8888);
+        //byte[] pixels = ScreenUtils.getFrameBufferPixels(0, 0, Gdx.graphics.getBackBufferWidth(), Gdx.graphics.getBackBufferHeight(), true);
+        //pixmap = new Pixmap(Gdx.graphics.getBackBufferWidth(), Gdx.graphics.getBackBufferHeight(), Pixmap.Format.RGBA8888);
+        BufferUtils.copy(ScreenUtils.getFrameBufferPixels(0, 0, Gdx.graphics.getBackBufferWidth(), Gdx.graphics.getBackBufferHeight(), true), 0, pixmap.getPixels(), pixels.length);
+        //pixmap2 = new Pixmap(160, 120, Pixmap.Format.RGBA8888);
         pixmap2.drawPixmap(pixmap, 0, 0, pixmap.getWidth(), pixmap.getHeight(), 0, 0, pixmap2.getWidth(), pixmap2.getHeight());
 
         return pixmap2.getPixels().array();
@@ -135,7 +138,7 @@ public class FlappyBirdRL extends ApplicationAdapter {
     }
 
     public double getReward() {
-        return engine.getScore() + time;
+        return engine.getScore();
     }
 
     public void handleInput(Inputs input) {
