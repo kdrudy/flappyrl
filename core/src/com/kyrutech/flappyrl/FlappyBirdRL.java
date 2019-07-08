@@ -10,6 +10,8 @@ import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.utils.BufferUtils;
 import com.badlogic.gdx.utils.ScreenUtils;
 
+import java.nio.ByteBuffer;
+
 public class FlappyBirdRL extends ApplicationAdapter {
     SpriteBatch batch;
     Sprite flappyFall, flappyFlap, flappyDead;
@@ -27,7 +29,7 @@ public class FlappyBirdRL extends ApplicationAdapter {
 
     private boolean firstRender = true;
 
-    private byte[] pixels = new byte[160 * 120 * 3];
+    private ByteBuffer pixels;
 
     double time = 0;
 
@@ -54,7 +56,8 @@ public class FlappyBirdRL extends ApplicationAdapter {
         Gdx.input.setInputProcessor(input);
 
         pixmap = new Pixmap(Gdx.graphics.getBackBufferWidth(), Gdx.graphics.getBackBufferHeight(), Pixmap.Format.RGBA8888);
-        pixmap2 = new Pixmap(160, 120, Pixmap.Format.RGBA8888);
+        pixmap2 = new Pixmap(160, 160, Pixmap.Format.RGB888);
+        pixmap2.setFilter(Pixmap.Filter.NearestNeighbour);
     }
 
     public void startGame() {
@@ -77,6 +80,7 @@ public class FlappyBirdRL extends ApplicationAdapter {
         drawFlappy();
         drawPipes();
         drawScore();
+        drawReward();
 
         batch.end();
 
@@ -89,13 +93,15 @@ public class FlappyBirdRL extends ApplicationAdapter {
         try {
             pixels = getScreenPixels();
         } catch (Exception ex) {
-            //System.out.println(ex.getMessage());
+            ex.printStackTrace();
+            System.out.println(ex.getMessage());
         }
     }
 
     private void drawScore() {
         font.draw(batch, "Score: " + engine.getScore(), 10, Gdx.graphics.getHeight() - 20);
     }
+    private void drawReward() { font.draw(batch, "Current Reward: " + getReward(), 10, 30); }
 
     private void drawFlappy() {
 
@@ -122,14 +128,14 @@ public class FlappyBirdRL extends ApplicationAdapter {
 
     }
 
-    public byte[] getScreenPixels() {
-        //byte[] pixels = ScreenUtils.getFrameBufferPixels(0, 0, Gdx.graphics.getBackBufferWidth(), Gdx.graphics.getBackBufferHeight(), true);
+    public ByteBuffer getScreenPixels() {
+        byte[] pixels = ScreenUtils.getFrameBufferPixels(0, 0, Gdx.graphics.getBackBufferWidth(), Gdx.graphics.getBackBufferHeight(), true);
         //pixmap = new Pixmap(Gdx.graphics.getBackBufferWidth(), Gdx.graphics.getBackBufferHeight(), Pixmap.Format.RGBA8888);
-        BufferUtils.copy(ScreenUtils.getFrameBufferPixels(0, 0, Gdx.graphics.getBackBufferWidth(), Gdx.graphics.getBackBufferHeight(), true), 0, pixmap.getPixels(), pixels.length);
+        BufferUtils.copy(pixels, 0, pixmap.getPixels(), pixels.length);
         //pixmap2 = new Pixmap(160, 120, Pixmap.Format.RGBA8888);
         pixmap2.drawPixmap(pixmap, 0, 0, pixmap.getWidth(), pixmap.getHeight(), 0, 0, pixmap2.getWidth(), pixmap2.getHeight());
 
-        return pixmap2.getPixels().array();
+        return pixmap2.getPixels();
     }
 
 
@@ -138,7 +144,16 @@ public class FlappyBirdRL extends ApplicationAdapter {
     }
 
     public double getReward() {
+//        return engine.getScore() +
+//                (engine.getDistanceTraveled()/80) +
+//                (engine.getFlappy().getY() < 40 ? -20 : 0) +
+//                (engine.getFlappy().getY() > Gdx.graphics.getHeight() - 40 ? -20 : 0);
+
+//        float distanceFromCenter = Math.abs(engine.getOpeningCenter() - engine.getFlappy().getY());
+//        return -distance + (engine.getDistanceTraveled());
+
         return engine.getScore();
+
     }
 
     public void handleInput(Inputs input) {
@@ -155,7 +170,7 @@ public class FlappyBirdRL extends ApplicationAdapter {
         }
     }
 
-    public byte[] getPixels() {
+    public ByteBuffer getPixels() {
         return pixels;
     }
 
@@ -182,12 +197,13 @@ public class FlappyBirdRL extends ApplicationAdapter {
             if (keycode == Input.Keys.P) {
                 System.out.println("Taking screenshot");
                 byte[] pixels = ScreenUtils.getFrameBufferPixels(0, 0, Gdx.graphics.getBackBufferWidth(), Gdx.graphics.getBackBufferHeight(), true);
-                Pixmap pixmap = new Pixmap(Gdx.graphics.getBackBufferWidth(), Gdx.graphics.getBackBufferHeight(), Pixmap.Format.RGBA8888);
-                BufferUtils.copy(pixels, 0, pixmap.getPixels(), pixels.length);
-                Pixmap pixmap2 = new Pixmap(160, 120, Pixmap.Format.RGBA8888);
-                pixmap2.drawPixmap(pixmap, 0, 0, pixmap.getWidth(), pixmap.getHeight(), 0, 0, pixmap2.getWidth(), pixmap2.getHeight());
-                PixmapIO.writePNG(Gdx.files.external("mypixmap.png"), pixmap2);
-                pixmap.dispose();
+                //pixmap = new Pixmap(Gdx.graphics.getBackBufferWidth(), Gdx.graphics.getBackBufferHeight(), Pixmap.Format.RGBA8888);
+                BufferUtils.copy(pixels, 0, game.pixmap.getPixels(), pixels.length);
+                //pixmap2 = new Pixmap(160, 120, Pixmap.Format.RGBA8888);
+                game.pixmap2.drawPixmap(game.pixmap, 0, 0, game.pixmap.getWidth(), game.pixmap.getHeight(), 0, 0, game.pixmap2.getWidth(), game.pixmap2.getHeight());
+
+                PixmapIO.writePNG(Gdx.files.external("mypixmap.png"), game.pixmap2);
+                //pixmap.dispose();
             }
             return true;
         }

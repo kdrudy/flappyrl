@@ -7,6 +7,10 @@ import org.deeplearning4j.rl4j.space.DiscreteSpace;
 import org.deeplearning4j.rl4j.space.Encodable;
 import org.deeplearning4j.rl4j.space.ObservationSpace;
 
+import java.nio.ByteBuffer;
+
+import static javax.swing.UIManager.get;
+
 public class FlappyMDP implements MDP<FlappyMDP.Screen, Integer, DiscreteSpace> {
 
     private FlappyBirdRL game;
@@ -15,7 +19,8 @@ public class FlappyMDP implements MDP<FlappyMDP.Screen, Integer, DiscreteSpace> 
 
     final protected boolean render;
 
-    protected double scaleFactor = 100;
+    protected double scaleFactor = 1;
+
 
     public FlappyMDP() {
         this(false, new FlappyBirdRL());
@@ -25,12 +30,12 @@ public class FlappyMDP implements MDP<FlappyMDP.Screen, Integer, DiscreteSpace> 
         this.render = render;
         this.game = game;
         discreteSpace = new DiscreteSpace(2);
-        observationSpace = new ArrayObservationSpace<>(new int[] {160, 120, 3});
+        observationSpace = new ArrayObservationSpace<>(new int[] {160, 160, 3});
 
     }
 
     @Override
-    public ObservationSpace<FlappyMDP.Screen> getObservationSpace() {
+    public ObservationSpace<Screen> getObservationSpace() {
         return observationSpace;
     }
 
@@ -42,7 +47,9 @@ public class FlappyMDP implements MDP<FlappyMDP.Screen, Integer, DiscreteSpace> 
     @Override
     public FlappyMDP.Screen reset() {
         game.handleInput(FlappyBirdRL.Inputs.RESTART);
-        return new Screen(game.getPixels());
+        byte[] buffer = new byte[game.getPixels().remaining()];
+        game.getPixels().get(buffer);
+        return new Screen(new byte[160*160*3]);
     }
 
     @Override
@@ -52,7 +59,6 @@ public class FlappyMDP implements MDP<FlappyMDP.Screen, Integer, DiscreteSpace> 
 
     @Override
     public StepReply<FlappyMDP.Screen> step(Integer action) {
-        double r = game.getReward() * scaleFactor;
         switch(action) {
             case 0:
                 game.handleInput(FlappyBirdRL.Inputs.NOTHING);
@@ -61,7 +67,15 @@ public class FlappyMDP implements MDP<FlappyMDP.Screen, Integer, DiscreteSpace> 
                 game.handleInput(FlappyBirdRL.Inputs.FLAP);
                 break;
         }
-        Screen screen = new Screen(game.isDone() ? new byte[160*120*3] : game.getPixels());
+        double r = game.getReward() * scaleFactor;
+
+        ByteBuffer byteBuffer = (ByteBuffer) game.getPixels().position(0);
+
+        byte[] buffer = new byte[byteBuffer.remaining()];
+        byteBuffer.get(buffer);
+
+//        Screen screen = new Screen(buffer);
+        Screen screen = new Screen(buffer.length == 0 ? new byte[160*160*3] : buffer);
         return new StepReply<>(screen, r, game.isDone(), null);
     }
 
@@ -71,7 +85,7 @@ public class FlappyMDP implements MDP<FlappyMDP.Screen, Integer, DiscreteSpace> 
     }
 
     @Override
-    public MDP<FlappyMDP.Screen, Integer, DiscreteSpace> newInstance() {
+    public MDP<Screen, Integer, DiscreteSpace> newInstance() {
         return new FlappyMDP(true, game);
     }
 
@@ -82,9 +96,10 @@ public class FlappyMDP implements MDP<FlappyMDP.Screen, Integer, DiscreteSpace> 
         public Screen(byte[] screen) {
             array = new double[screen.length];
             for (int i = 0; i < screen.length; i++) {
-                array[i] = (screen[i] & 0xFF) / 255.0;
+                array[i] = (screen[i] & 0xFF);// / 255.0;
             }
         }
+
 
         @Override
         public double[] toArray() {

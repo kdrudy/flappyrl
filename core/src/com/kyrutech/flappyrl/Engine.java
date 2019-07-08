@@ -19,8 +19,10 @@ public class Engine {
 
     private GameState state;
 
+    double distanceTraveled;
+
     public enum GameState {
-        START, RUNNING, GAMEOVER;
+        START, RUNNING, GAMEOVER
     }
 
     public Engine(int width, int height) {
@@ -30,17 +32,21 @@ public class Engine {
         checkPipes();
         flappy = new Flappy(width/2, height/2, height);
 
+        distanceTraveled = 0;
+
         state = GameState.START;
     }
 
     public void act(double delta) {
         double pipeMovement = 200 * delta;
+
         topPipe.setX((float) (topPipe.getX()-pipeMovement));
         bottomPipe.setX((float) (bottomPipe.getX()-pipeMovement));
 
         checkPipes();
         checkForScore();
         if(flappy.isAlive()) {
+            distanceTraveled += pipeMovement;
             checkCollision();
         }
 
@@ -62,6 +68,7 @@ public class Engine {
         state = GameState.RUNNING;
         score = 0;
         scored = false;
+        distanceTraveled = 0;
     }
 
     public Rectangle getFlappyRect() {
@@ -145,6 +152,12 @@ public class Engine {
         return bottomPipe;
     }
 
+    public float getOpeningCenter() {
+        float pipesHeight = topPipe.height + bottomPipe.height;
+        float openingHeight = height - pipesHeight;
+        return bottomPipe.height + (openingHeight/2);
+    }
+
     public void setBottomPipe(Rectangle bottomPipe) {
         this.bottomPipe = bottomPipe;
     }
@@ -155,5 +168,9 @@ public class Engine {
 
     public void setState(GameState state) {
         this.state = state;
+    }
+
+    public double getDistanceTraveled() {
+        return distanceTraveled;
     }
 }
